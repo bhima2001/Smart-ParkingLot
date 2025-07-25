@@ -5,6 +5,6 @@ import { authMiddleware } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.route('/parkingspot/getAvailableSpots').get(authMiddleware, asyncErrorWrapper(getAvailableSpots));
+router.route('/getAvailableSpots').get(authMiddleware, asyncErrorWrapper(getAvailableSpots));
 
 export default router;

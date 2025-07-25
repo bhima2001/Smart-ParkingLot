@@ -5,7 +5,7 @@ import { authMiddleware } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.route('/reservation/create').post(authMiddleware, asyncErrorWrapper(createReservation));
-router.route('/reservation/:reservationId/cancel').put(authMiddleware, asyncErrorWrapper(cancelReservation));
+router.route('/create').post(authMiddleware, asyncErrorWrapper(createReservation));
+router.route('/:reservationId/cancel').put(authMiddleware, asyncErrorWrapper(cancelReservation));
 
 export default router;

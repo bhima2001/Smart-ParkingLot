@@ -5,8 +5,8 @@ import { authMiddleware } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.route('/user/signup').post(asyncErrorWrapper(signup));
-router.route('/user/login').post(asyncErrorWrapper(login));
-router.route('/user/getReservations').get(authMiddleware, asyncErrorWrapper(getReservations));
+router.route('/signup').post(asyncErrorWrapper(signup));
+router.route('/login').post(asyncErrorWrapper(login));
+router.route('/getReservations').get(authMiddleware, asyncErrorWrapper(getReservations));
 
 export default router;

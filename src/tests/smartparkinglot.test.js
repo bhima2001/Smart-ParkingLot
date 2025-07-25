@@ -84,8 +84,8 @@ describe('Parking Spot Endpoints', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .query({
                 spotType: 'compact',
-                startTime: unixStartTime1,
-                endTime: unixEndTime1,
+                startTime: new Date(unixStartTime1 * 1000).toISOString(),
+                endTime: new Date(unixEndTime1 * 1000).toISOString(),
                 parkingLotId: testLotId
             });
         expect(res.statusCode).toBe(200);
@@ -101,8 +101,8 @@ describe('Reservation Endpoints', () => {
             .send({
                 userId: testUserId,
                 parkingSpotId: testSpotId,
-                startTime: unixStartTime2,
-                endTime: unixEndTime2,
+                startTime: new Date(unixStartTime2 * 1000).toISOString(),
+                endTime: new Date(unixEndTime2 * 1000).toISOString(),
                 status: 'reserved'
             });
         expect([200, 201]).toContain(res.statusCode);
