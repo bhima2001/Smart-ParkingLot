@@ -5,7 +5,6 @@ const seed = async () => {
   const client = await pool.connect();
   try {
     await pool.query(`
-            CREATE EXTENSION IF NOT EXISTS btree_gist;
             DROP TABLE IF EXISTS reservations, parking_spots, parking_lots, users CASCADE;
           
             CREATE TABLE users (
@@ -34,21 +33,16 @@ const seed = async () => {
             );
           
             CREATE TABLE reservations (
-              id SERIAL PRIMARY KEY,
-              user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-              parking_spot_id INTEGER NOT NULL REFERENCES parking_spots(id) ON DELETE CASCADE,
-              start_time TIMESTAMPTZ NOT NULL,
-              end_time TIMESTAMPTZ NOT NULL,
-              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              status TEXT NOT NULL CHECK (status IN ('reserved', 'cancelled')),
-              deleted_at TIMESTAMP DEFAULT NULL,
-              CHECK (start_time < end_time),
-              EXCLUDE USING gist (
-                parking_spot_id WITH =,
-                tsrange(start_time, end_time) WITH &&
-              ) WHERE (status = 'reserved')
-            );
-          
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                parking_spot_id INTEGER NOT NULL REFERENCES parking_spots(id) ON DELETE CASCADE,
+                start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+                end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                status TEXT NOT NULL CHECK (status IN ('reserved', 'cancelled')),
+                deleted_at TIMESTAMP DEFAULT NULL,
+                CHECK (start_time < end_time)
+              );
             `);
     await pool.query(seedSQL);
     //CREATE INDEX idx_reservations_spot_time ON reservations (parking_spot_id, start_time, end_time);

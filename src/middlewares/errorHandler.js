@@ -1,6 +1,6 @@
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 
-export const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err, _req, res, _next) => {
     const status = err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
 
     console.log(err);
