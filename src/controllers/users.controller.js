@@ -2,11 +2,16 @@ import pool from '../config/db.js';
 import bcrypt from 'bcrypt';
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
+import { Constants } from '../contants.js';
 
 export const signup = async (req, res) => {
     const { name, email, phoneNumber, password } = req.body;
+    if (!name || !email || !phoneNumber || !password) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: 'All fields are required' });
+        return;
+    }
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    const hashedPasswordWithSalt = await bcrypt.hash(password, 10);
+    const hashedPasswordWithSalt = await bcrypt.hash(password, Constants.SALT_LENGTH);
 
     if (user.rows.length > 0) {
         res.status(StatusCodes.BAD_REQUEST).json({ message: 'User already exists' });
@@ -23,7 +28,7 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (!user) {
-        res.status(StatusCodes.BAD_REQUEST).json({ message: 'Wrong password or email.' });
+        res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found.' });
         return;
     }
 
@@ -46,16 +51,3 @@ export const getReservations = async (req, res) => {
     const reservations = await pool.query('SELECT * FROM reservations WHERE user_id = $1 order by created_at', [userId]);
     res.status(StatusCodes.OK).json({ reservations: reservations.rows });
 }
-
-// export const logout = async (req, res) => {
-//     const { token } = req.cookies
-//     if (!token) {
-//         return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Unauthorized' });
-//     }
-//     res.cookie('token', null, {
-//         expires: new Date(Date.now()),
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === 'production'
-//     });
-//     res.status(StatusCodes.OK).json({ message: 'Logout successful' });
-// }

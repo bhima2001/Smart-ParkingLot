@@ -1,27 +1,17 @@
 import pool from '../config/db.js';
 import { StatusCodes } from 'http-status-codes';
+import { generateSlots } from '../helpers/parkingSlotHelper.js';
 
 export const getAvailableSpots = async (req, res) => {
     const { spotType, startTime, endTime, parkingLotIds } = req.query;
 
     let type = spotType && spotType !== '' ? spotType : null;
     let lotIds = parkingLotIds && parkingLotIds !== '' ? parkingLotIds : [];
-    const parsedStart = new Date(startTime);
-    const parsedEnd = new Date(endTime);
+    const parsedStart = new Date(startTime * 1000);
+    const parsedEnd = new Date(endTime * 1000);
 
-    // Generate 1-hour slots between start and end
-    let slots = [];
-    let curr = parsedStart;
-    while (curr < parsedEnd) {
-        let next = curr + 1000 * 60 * 60;
-        slots.push({
-            start: curr,
-            end: next
-        });
-        curr = next;
-    }
+    let slots = generateSlots(parsedStart, parsedEnd);
 
-    // Get all available spots of the given type and lot (flexible filtering)
     let spotsQuery = `SELECT * FROM parking_spots WHERE deleted_at IS NULL`;
     let queryParams = [];
     let paramIdx = 1;
@@ -60,15 +50,14 @@ export const getAvailableSpots = async (req, res) => {
             for (const r of reservations) {
                 // If reservation overlaps with slot
                 if (
-                    new Date(r.start_time).getTime() < slot.end &&
-                    new Date(r.end_time).getTime() > slot.start
+                    new Date(r.start_time * 1000).getTime() < slot.end &&
+                    new Date(r.end_time * 1000).getTime() > slot.start
                 ) {
                     reservedSpotsBySlot[i].add(r.parking_spot_id);
                 }
             }
         }
     }
-
     // For each slot, get available spots (not reserved in that slot)
     const result = slots.map((slot, i) => {
         let reserved = reservedSpotsBySlot[i] || new Set();
