@@ -1,0 +1,10 @@
+import express from 'express';
+import { getAllParkingLots, getParkingSpots } from '../controllers/parkingLots.controller.js';
+import { asyncErrorWrapper } from '../middlewares/asyncErrorWrapper.js';
+import { authMiddleware } from '../middlewares/authMiddleware.js';
+const router = express.Router();
+
+router.route('/parkinglot/getAll').get(authMiddleware, asyncErrorWrapper(getAllParkingLots));
+router.route('/parkinglot/:lotId/getSpots').get(authMiddleware, asyncErrorWrapper(getParkingSpots));
+
+export default router;
