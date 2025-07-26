@@ -67,11 +67,6 @@
       (capacity)
    ```
 
-   **Legend:**
-   - `[TableName]` represents a table/entity.
-   - `<-----<` or `>----->` shows the direction of the relationship (one-to-many or many-to-one).
-   - Fields in parentheses are columns/attributes.
-
    ```
    Table User {
      id int [pk, increment]
