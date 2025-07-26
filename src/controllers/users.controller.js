@@ -6,10 +6,7 @@ import { Constants } from '../contants.js';
 
 export const signup = async (req, res) => {
     const { name, email, phoneNumber, password } = req.body;
-    if (!name || !email || !phoneNumber || !password) {
-        res.status(StatusCodes.BAD_REQUEST).json({ message: 'All fields are required' });
-        return;
-    }
+
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     const hashedPasswordWithSalt = await bcrypt.hash(password, Constants.SALT_LENGTH);
 
@@ -27,7 +24,7 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (!user) {
+    if (user.rows.length === 0) {
         res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found.' });
         return;
     }

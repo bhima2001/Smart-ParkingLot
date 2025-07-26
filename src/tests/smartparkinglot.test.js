@@ -16,10 +16,10 @@ const testSpotId = 10;
 const testUserId = 11; // Will be set after signup/login if needed
 
 // Unix timestamps for test times
-const unixStartTime1 = 1721892000; // 2024-07-25T10:00:00Z
-const unixEndTime1 = 1721899200;   // 2024-07-25T12:00:00Z
-const unixStartTime2 = 1721902800; // 2024-07-25T13:00:00Z
-const unixEndTime2 = 1721906400;   // 2024-07-25T14:00:00Z
+const unixStartTime1 = 1721892000000; // 2024-07-25T10:00:00Z
+const unixEndTime1 = 1721899200000;   // 2024-07-25T12:00:00Z
+const unixStartTime2 = 1721902800000; // 2024-07-25T13:00:00Z
+const unixEndTime2 = 1721906400000;   // 2024-07-25T14:00:00Z
 
 beforeAll(async () => {
     // Signup
@@ -84,8 +84,8 @@ describe('Parking Spot Endpoints', () => {
             .set('Authorization', `Bearer ${authToken}`)
             .query({
                 spotType: 'compact',
-                startTime: new Date(unixStartTime1 * 1000).toISOString(),
-                endTime: new Date(unixEndTime1 * 1000).toISOString(),
+                startTime: new Date(unixStartTime1).toISOString(),
+                endTime: new Date(unixEndTime1).toISOString(),
                 parkingLotId: testLotId
             });
         expect(res.statusCode).toBe(200);
@@ -101,8 +101,8 @@ describe('Reservation Endpoints', () => {
             .send({
                 userId: testUserId,
                 parkingSpotId: testSpotId,
-                startTime: new Date(unixStartTime2 * 1000).toISOString(),
-                endTime: new Date(unixEndTime2 * 1000).toISOString(),
+                startTime: new Date(unixStartTime2).toISOString(),
+                endTime: new Date(unixEndTime2).toISOString(),
                 status: 'reserved'
             });
         expect([200, 201]).toContain(res.statusCode);

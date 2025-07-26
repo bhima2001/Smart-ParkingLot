@@ -4,19 +4,14 @@ import { hasOverLappingReservations } from '../helpers/reservationHelper.js';
 
 export const createReservation = async (req, res) => {
     const { userId, parkingSpotId, startTime, endTime } = req.body;
-    if (startTime >= endTime || !userId || !parkingSpotId || !startTime || !endTime) {
-        res.status(StatusCodes.BAD_REQUEST).json({ message: 'Start time must be before end time' });
-        return;
-    }
-
     // Use advisory lock to prevent concurrent reservations for the same parking spot and time
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
         const lockKey = BigInt(
             BigInt(parkingSpotId) * 1000000000000n +
-            BigInt(Math.floor(new Date(startTime * 1000).getTime())) * 1000000n +
-            BigInt(Math.floor(new Date(endTime * 1000).getTime()))
+            BigInt(Math.floor(new Date(startTime).getTime())) * 1000000n +
+            BigInt(Math.floor(new Date(endTime).getTime()))
         );
 
         await client.query(
@@ -35,7 +30,7 @@ export const createReservation = async (req, res) => {
 
         const reservation = await client.query(
             'INSERT INTO reservations (user_id, parking_spot_id, start_time, end_time, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [userId, parkingSpotId, new Date(startTime * 1000), new Date(endTime * 1000), 'reserved']
+            [userId, parkingSpotId, new Date(startTime), new Date(endTime), 'reserved']
         );
         await client.query('COMMIT');
         res.status(StatusCodes.CREATED).json({ reservation: reservation.rows[0] });

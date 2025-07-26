@@ -4,7 +4,7 @@ export const hasOverLappingReservations = async (client, parkingSpotId, startTim
          WHERE parking_spot_id = $1
            AND status = 'reserved'
            AND NOT ($3 <= start_time OR $2 >= end_time)`,
-        [parkingSpotId, new Date(startTime * 1000), new Date(endTime * 1000)]
+        [parkingSpotId, new Date(startTime), new Date(endTime)]
     );
     return overlap?.rows?.length ?? 0;
 }
