@@ -1,16 +1,21 @@
 import pool from '../config/db.js';
 import { StatusCodes } from 'http-status-codes';
-import { generateSlots } from '../helpers/parkingSlotHelper.js';
+import { generateSlots } from '../helpers/parkingSpotHelper.js';
 
+/**
+ * The function `getAvailableSpots` retrieves available parking spots based on specified criteria and
+ * time range, considering existing reservations.
+ * @param {object} req
+ * @param {object} res
+ */
 export const getAvailableSpots = async (req, res) => {
     const { spotType, startTime, endTime, parkingLotIds } = req.query;
 
     let type = spotType ?? null;
     let lotIds = parkingLotIds ?? [];
-    const parsedStart = new Date(startTime);
-    const parsedEnd = new Date(endTime);
 
-    let slots = generateSlots(parsedStart, parsedEnd);
+    let slots = generateSlots(startTime, endTime);
+    console.log(slots)
 
     let spotsQuery = `SELECT * FROM parking_spots WHERE deleted_at IS NULL`;
     let queryParams = [];
@@ -32,16 +37,20 @@ export const getAvailableSpots = async (req, res) => {
 
     if (spotIds.length > 0) {
         const reservationsQuery = `
-                SELECT parking_spot_id, start_time, end_time
-                FROM reservations
-                WHERE parking_spot_id = ANY($1)
+            SELECT parking_spot_id, start_time, end_time
+            FROM reservations
+            WHERE parking_spot_id = ANY($1)
                 AND status != 'cancelled'
                 AND (
-                    (start_time, end_time) OVERLAPS ($2, $3)
+                (start_time, end_time) OVERLAPS (
+                    to_timestamp($2 / 1000.0),
+                    to_timestamp($3 / 1000.0)
                 )
-            `;
-        const reservationsResult = await pool.query(reservationsQuery, [spotIds, parsedStart, parsedEnd]);
+            )
+        `;
+        const reservationsResult = await pool.query(reservationsQuery, [spotIds, startTime, endTime]);
         const reservations = reservationsResult.rows;
+        console.log(reservations);
 
         // For each slot, find reserved spot ids
         for (let i = 0; i < slots.length; i++) {

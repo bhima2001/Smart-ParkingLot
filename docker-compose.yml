@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15
@@ -34,4 +32,7 @@ services:
       - POSTGRES_DB=smartparkinglotdb
       - POSTGRES_USER=smartparkinglotuser
       - POSTGRES_PASSWORD=smartparkinglotpassword
+      - JWT_SECRET=smartlotjwtpassword
+      - JWT_EXPIRES_IN=1d
+      - NODE_ENV=development
     command: ["sh", "-c", "npm run seed && npm start"]
